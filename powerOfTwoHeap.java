@@ -4,6 +4,19 @@ import java.util.List;
 public class powerOfTwoHeap {
     int curr_parent;
     List<Node> nodes;
+    public class Node {
+        List<Node> children;
+        Node parent;
+        int value;
+        int height;
+        public Node(int value, int height, Node parent) {
+            children = new ArrayList<>();
+            this.value = value;
+            this.height = height;
+            this.parent = parent;
+
+        }
+    }
     public powerOfTwoHeap(){
         curr_parent = 0;
         nodes = new ArrayList<>();
@@ -33,15 +46,17 @@ public class powerOfTwoHeap {
         }
         Node n = nodes.get(0); // deleted minimum node
         Node bottom_node = nodes.get(nodes.size() - 1);
+
         bottom_node.parent.children.remove(bottom_node);
         nodes.remove(bottom_node);
         bottom_node.parent = null;
+
         n.value = bottom_node.value;
         update_curr_parent();
         // replacing values of the minimum node with the bottom-most node and then deleting it
 
-        while (n.children.size() > 0 && n.value > getMaxChild(n).value) {
-            Node child = getMinChild(n, n.value);
+        while (n.children.size() > 0 && n.value > getMinOrMaxChild(n, false, n.value).value) {
+            Node child = getMinOrMaxChild(n, true, n.value);
             if (child != null) {
                 int temp = n.value;
                 n.value = child.value;
@@ -60,23 +75,20 @@ public class powerOfTwoHeap {
             curr_parent--;
         }
     }
-    private Node getMaxChild(Node n) {
-        Node max = null;
+    private Node getMinOrMaxChild(Node n, boolean getMin, int smallest_val) {
+        Node node = null;
         for (Node child: n.children) {
-            if (max == null || child.value > max.value) {
-                max = child;
+            if (getMin) {
+                if (node == null && child.value < smallest_val || child.value < node.value) {
+                    node = child;
+                }
+            } else {
+                if (node == null || child.value > node.value) {
+                    node = child;
+                }
             }
         }
-        return max;
-    }
-    private Node getMinChild(Node n, int smallest_val) {
-        Node min = null;
-        for (Node child: n.children) {
-            if (min == null && child.value < smallest_val || child.value < min.value) {
-                min = child;
-            }
-        }
-        return min;
+        return node;
     }
     public void print(Node n, String indentation) {
         System.out.println(indentation + n.value);
@@ -84,15 +96,4 @@ public class powerOfTwoHeap {
             print(child, indentation + " ");
         }
     }
-    public static void main(String[] args) {
-        powerOfTwoHeap POTH = new powerOfTwoHeap();
-        for (int i = 1; i < 15; i++) {
-            POTH.add(i);
-        }
-        for (int i = 0; i < 12; i++) {
-            POTH.deleteMin();
-        }
-        POTH.print(POTH.nodes.get(0),"");
-    }
-
 }
