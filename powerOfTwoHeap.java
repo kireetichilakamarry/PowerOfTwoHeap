@@ -30,7 +30,7 @@ public class powerOfTwoHeap {
         Node n = new Node(val, curr_node.height + 1, curr_node);
         curr_node.children.add(n);
         nodes.add(n);
-        while (curr_node != null && n.value < curr_node.value) {
+        while (curr_node != null && n.value > curr_node.value) {
             int temp = curr_node.value;
             curr_node.value = n.value;
             n.value = temp;
@@ -40,11 +40,11 @@ public class powerOfTwoHeap {
         }
         update_curr_parent();
     }
-    public void deleteMin() {
+    public void deleteMax() {
         if (nodes.size() == 0) {
             return;
         }
-        Node n = nodes.get(0); // deleted minimum node
+        Node n = nodes.get(0); // deleted maximum node
         Node bottom_node = nodes.get(nodes.size() - 1);
 
         bottom_node.parent.children.remove(bottom_node);
@@ -53,10 +53,11 @@ public class powerOfTwoHeap {
 
         n.value = bottom_node.value;
         update_curr_parent();
-        // replacing values of the minimum node with the bottom-most node and then deleting it
+        // replacing values of the maximum node with the bottom-most node and then deleting it
 
-        while (n.children.size() > 0 && n.value > getMinOrMaxChild(n, false, n.value).value) {
-            Node child = getMinOrMaxChild(n, true, n.value);
+        // traversing from top to bottom
+        while (n.children.size() > 0 && n.value < getMinOrMaxChild(n, false, n.value).value) {
+            Node child = getMinOrMaxChild(n, false, n.value);
             if (child != null) {
                 int temp = n.value;
                 n.value = child.value;
@@ -64,9 +65,11 @@ public class powerOfTwoHeap {
                 n = child;
             }
         }
-
     }
     private void update_curr_parent() {
+        if (nodes.size() == 0) {
+            return;
+        }
         Node n = nodes.get(curr_parent);
         if (n.children.size() == (int) Math.pow(2, n.height + 1)) {
             curr_parent++;
@@ -91,6 +94,9 @@ public class powerOfTwoHeap {
         return node;
     }
     public void print(Node n, String indentation) {
+        if (nodes.size() == 0) {
+            return;
+        }
         System.out.println(indentation + n.value);
         for (Node child: n.children) {
             print(child, indentation + " ");
